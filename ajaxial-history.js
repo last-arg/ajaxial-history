@@ -55,7 +55,7 @@ const AjaxialHistory = new class {
             }
         } else {
             for (const elem of elems) {
-                const key = elem.getAttribute("ajxl-history-name") || "default";
+                const key = elem.ajxl["history-name"] || "default";
                 if (!state[key]) { continue }
                 let node = Ajaxial.responseConverters.html(state[key])(elem);
                 Ajaxial.process(node);
@@ -71,9 +71,9 @@ const AjaxialHistory = new class {
     /** @param {Event} ev */
     handle_ajaxial_trigger(ev) {
         const d = ev.detail;
-        let path = d.source.getAttribute("ajxl-history") || d.source.getAttribute("ajxl-path");
+        let path = d.source.ajxl.history || d.source.ajxl.path;
         if (path === null) { return }
-        const action = d.source.getAttribute("[ajxl-history-action]");
+        const action = d.source.ajxl["history-action"];
         let state = this.getHistoryState();
         state = this.storeState(state);
         if (action === "replace") {
@@ -100,7 +100,7 @@ const AjaxialHistory = new class {
             // TODO: what if there are several elements with the same history
             // name?
             for (const elem of elems) {
-                let name = elem.getAttribute("ajxl-history-name");
+                let name = elem.ajxl["history-name"];
                 if (name === null) { 
                     continue 
                 } else if (name.length === 0) {
