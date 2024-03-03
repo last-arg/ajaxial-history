@@ -6,6 +6,9 @@ const AjaxialHistory = new class {
         this.throttle_timeout = undefined;
 
         document.addEventListener("click", function(ev) {
+            // TODO: also limit only to elements with ajxl-history attribute?
+            // This would align more with Ajaxial default behaviour which
+            // doesn't prevent links (<a>).
             if (ev.target.closest("a[ajxl-path]")) {
                 ev.preventDefault();
             }
@@ -96,4 +99,4 @@ const AjaxialHistory = new class {
         }
         return state;
     }
-}()
+}
