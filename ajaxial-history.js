@@ -22,6 +22,7 @@ const AjaxialHistory = new class {
         document.addEventListener("ajaxial:trigger", this)
         document.addEventListener("ajaxial:finish", this)
     }
+    /** @param {Event} ev */
     handleEvent(ev) {
         let type = ev.type;
         if (type.startsWith("ajaxial:")) {
@@ -29,6 +30,7 @@ const AjaxialHistory = new class {
         }
         this[`handle_${type}`](ev)
     }
+    /** @param {PopStateEvent} ev */
     handle_popstate(ev) {
         if (!ev.state) {
             return;
@@ -50,6 +52,7 @@ const AjaxialHistory = new class {
             }
         }
     }
+    /** @param {Event} ev */
     handle_trigger(ev) {
         const d = ev.detail;
         let path = d.source.getAttribute("ajxl-history") || d.source.getAttribute("ajxl-path");
@@ -73,6 +76,7 @@ const AjaxialHistory = new class {
             this.throttle_timeout = undefined;
         }, 100);
     }
+    /** @returns {{[string]: string}} */
     getHistoryState() {
         let elems = document.querySelectorAll("[ajxl-history-name]");
         let state = {};
