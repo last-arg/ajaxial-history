@@ -97,6 +97,8 @@ const AjaxialHistory = new class {
         if (elems.length === 0) {
            state.default = document.body.innerHTML;
         } else {
+            // TODO: what if there are several elements with the same history
+            // name?
             for (const elem of elems) {
                 let name = elem.getAttribute("ajxl-history-name");
                 if (name === null) { 

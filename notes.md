@@ -11,6 +11,7 @@ ajxl-history-path?
 ## Questions
 - What to do about recursive ajxl-history-name attributes?
 - What happens if there several different elements with same axl-history-name?
+- What to do about sensitive data? User wants to hide data?
 
 Could just provide basic functionality. Allow users to provide read/write
 function to storage of their choosing. I would use what the browser natively 
