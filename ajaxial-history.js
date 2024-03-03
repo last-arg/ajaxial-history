@@ -1,17 +1,4 @@
-// HTML attributes:
-// - ajxl-history="<path>"
-//   - in case empty ajxl-path is used
-// - ajxl-history-action: 
-//   - push (default)
-//   - replace
-// - ajxl-history-name="<name>"
-//   - in case empty 'default' name is used
-
-// Can overwrite storeState and readStore to use own storage to back up state.
-// Like localStorage, IndexDB, ...
-
 // TODO: Use event dispatching for read/store data (state) modification?
-
 const AjaxialHistory = new class {
     /** @typedef {{[string]: string}} State */
     constructor() {
@@ -34,12 +21,17 @@ const AjaxialHistory = new class {
         this[`handle_${type}`](ev)
     }
     /** 
+        @param {State} state 
+        @returns {any}
+    */
+    storeState(state) { return state; }
+    /** 
         @param {any} state 
         @returns {State}
     */
     readState(state) { return state }
     // TODO: make handle_popstate and readState async
-    // Or let user handle by overwritting these functions to async?
+    // Or let user handle by overwriting these functions to async?
     /** @param {PopStateEvent} ev */
     handle_popstate(ev) {
         if (!ev.state) {
@@ -63,11 +55,6 @@ const AjaxialHistory = new class {
             }
         }
     }
-    /** 
-        @param {State} state 
-        @returns {any}
-    */
-    storeState(state) { return state; }
     /** @param {Event} ev */
     handle_ajaxial_trigger(ev) {
         const d = ev.detail;

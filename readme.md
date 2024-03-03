@@ -15,6 +15,34 @@ This allows to store/save different parts of the page based on <name> provided.
 If <name> is empty "default" name will be used. If no ajxl-history-name is
 found body element's innerHTML will be stored.
 
+## Use custom storage
+Can use your own custom storage solution by overwriting functions: 
+* AjaxialHistory.storeState(data)
+  **Input**
+  data - an object with keys being ajxl-history-name value and key's value 
+  would be element's inner html.
+  Example:
+  ```html
+  <div ... ajxl-history-name="main">Main content</div>
+  ```
+  ```js
+  { "main": "Main content" }
+  ```
+
+  **Output**
+  Output will be used by History.pushState or History.repeatState functions.
+  Output can be anything. This output value will returned to you when using 
+  AjaxialHistory.readState function.
+
+* AjaxialHistory.readState(state)
+  **Input**
+  state - value will be whatever 'storeState' returned.
+  **Output**
+  Will have to be in the shape of 
+  ```js
+  { "<ajxl-history-name>": "element's inner html" }
+  ```
+
 ## To be wary of
 - Currently if there are several elements with same <name> last element's
 html will be stored. Could store all elements' html and restore it in the
