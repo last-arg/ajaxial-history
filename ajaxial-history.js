@@ -24,10 +24,7 @@ const AjaxialHistory = new class {
     }
     /** @param {Event} ev */
     handleEvent(ev) {
-        let type = ev.type;
-        if (type.startsWith("ajaxial:")) {
-            type = type.split(":")[1];
-        }
+        let type = ev.type.replace(":", "_");
         this[`handle_${type}`](ev)
     }
     /** @param {PopStateEvent} ev */
@@ -53,7 +50,7 @@ const AjaxialHistory = new class {
         }
     }
     /** @param {Event} ev */
-    handle_trigger(ev) {
+    handle_ajaxial_trigger(ev) {
         const d = ev.detail;
         let path = d.source.getAttribute("ajxl-history") || d.source.getAttribute("ajxl-path");
         if (path === null) { return }
@@ -69,7 +66,7 @@ const AjaxialHistory = new class {
             history.pushState(null, "", path);
         }
     }
-    handle_finish() {
+    handle_ajaxial_finish() {
         if (this.throttle_timeout !== undefined) { return }
         this.throttle_timeout = window.setTimeout(() => {
             history.replaceState(this.getHistoryState(), "", "")
