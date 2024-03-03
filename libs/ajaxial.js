@@ -156,11 +156,7 @@ const Ajaxial = new function Ajaxial() {
     if(query) Object.entries(params).forEach(([k,v]) => url.searchParams.append(k,v))
 
     return fetch(url, { method, body, headers: { 'Content-Type': mime, ...JSON.parse(source.ajxl.headers ?? '{}') } })
-      .then(resp => {
-        const result = dispatch(source, `request${resp.ok ? 'Success' : 'Failure'}`, { source, response: resp, params }); 
-        console.log(result)
-        return result ? resp.text() : ''
-      })
+      .then(resp => dispatch(source, `request${resp.ok ? 'Success' : 'Failure'}`, { source, response: resp, params }) ? resp.text() : '')
       .then(body => {
         // Call the response converter selected by `ajxl-convert`
         let [converter,...params] = (source.ajxl.convert ?? this.responseConverters[defaultKey]).trim().split(/\s+/g)
