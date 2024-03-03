@@ -10,7 +10,7 @@
 // Can overwrite storeState and readStore to use own storage to back up state.
 // Like localStorage, IndexDB, ...
 
-// TODO: Use event dispatching for read/store data (state)?
+// TODO: Use event dispatching for read/store data (state) modification?
 
 const AjaxialHistory = new class {
     /** @typedef {{[string]: string}} State */
@@ -39,7 +39,7 @@ const AjaxialHistory = new class {
     */
     readState(state) { return state }
     // TODO: make handle_popstate and readState async
-    // Or let user handle by overwritting these functions?
+    // Or let user handle by overwritting these functions to async?
     /** @param {PopStateEvent} ev */
     handle_popstate(ev) {
         if (!ev.state) {
@@ -110,8 +110,3 @@ const AjaxialHistory = new class {
         return state;
     }
 }()
-
-document.addEventListener("DOMContentLoaded", function() {
-   document.querySelector("a").click();
-})
-
