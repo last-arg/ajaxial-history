@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# dependencies: 
+# - xdotool (refresh browser. X11 only) 
+# - entr (watches files) 
+# - redbean (server) - https://redbean.dev/ 
+# can replace 'firefox' with some other browser
+
+ls *.js *.html libs/* | entr ./reload-browser firefox &
+redbean.com -p 2222 -D ./
