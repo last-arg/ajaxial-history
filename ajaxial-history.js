@@ -30,14 +30,12 @@ const AjaxialHistory = new class {
         @returns {State}
     */
     readState(state) { return state }
-    // TODO: make handle_popstate and readState async
-    // Or let user handle by overwriting these functions to async?
     /** @param {PopStateEvent} ev */
-    handle_popstate(ev) {
+    async handle_popstate(ev) {
         if (!ev.state) {
             return;
         }
-        const state = this.readState(ev.state);
+        const state = await this.readState(ev.state);
         const elems = document.querySelectorAll("[ajxl-history-name]");
         if (elems.length === 0) {
             if (state.default) {
