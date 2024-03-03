@@ -7,7 +7,13 @@
 // - ajxl-history-name="<name>"
 //   - in case empty 'default' name is used
 
+// Can overwrite storeState and readStore to use own storage to back up state.
+// Like localStorage, IndexDB, ...
+
+// TODO: Use event dispatching for read/store data (state)?
+
 const AjaxialHistory = new class {
+    /** @typedef {{[string]: string}} State */
     constructor() {
         /** @type {number | undefined} */
         this.throttle_timeout = undefined;
@@ -27,41 +33,52 @@ const AjaxialHistory = new class {
         let type = ev.type.replace(":", "_");
         this[`handle_${type}`](ev)
     }
+    /** 
+        @param {any} state 
+        @returns {State}
+    */
+    readState(state) { return state }
+    // TODO: make handle_popstate and readState async
+    // Or let user handle by overwritting these functions?
     /** @param {PopStateEvent} ev */
     handle_popstate(ev) {
         if (!ev.state) {
             return;
         }
+        const state = this.readState(ev.state);
         const elems = document.querySelectorAll("[ajxl-history-name]");
         if (elems.length === 0) {
-            if (ev.state.default) {
-                let node = Ajaxial.responseConverters.html(ev.state.default)(document.body);
+            if (state.default) {
+                let node = Ajaxial.responseConverters.html(state.default)(document.body);
                 Ajaxial.process(node);
                 Ajaxial.swapStrategies.innerhtml(document.body, node);
             }
         } else {
             for (const elem of elems) {
                 const key = elem.getAttribute("ajxl-history-name") || "default";
-                if (!ev.state[key]) { continue }
-                let node = Ajaxial.responseConverters.html(ev.state[key])(elem);
+                if (!state[key]) { continue }
+                let node = Ajaxial.responseConverters.html(state[key])(elem);
                 Ajaxial.process(node);
                 Ajaxial.swapStrategies.innerhtml(elem, node);
             }
         }
     }
+    /** 
+        @param {State} state 
+        @returns {any}
+    */
+    storeState(state) { return state; }
     /** @param {Event} ev */
     handle_ajaxial_trigger(ev) {
         const d = ev.detail;
         let path = d.source.getAttribute("ajxl-history") || d.source.getAttribute("ajxl-path");
         if (path === null) { return }
         const action = d.source.getAttribute("[ajxl-history-action]");
-        const state = this.getHistoryState();
-        // saveState();
+        let state = this.getHistoryState();
+        state = this.storeState(state);
         if (action === "replace") {
-            // storeHistory();
             history.replaceState(state, "", path)
         } else { // push
-            // storeHistory();
             history.replaceState(state, "", "")
             history.pushState(null, "", path);
         }
@@ -73,7 +90,7 @@ const AjaxialHistory = new class {
             this.throttle_timeout = undefined;
         }, 100);
     }
-    /** @returns {{[string]: string}} */
+    /** @returns {State} */
     getHistoryState() {
         let elems = document.querySelectorAll("[ajxl-history-name]");
         let state = {};
