@@ -1,4 +1,3 @@
-// TODO: Use event dispatching for read/store data (state) modification?
 const AjaxialHistory = new class {
     /** @typedef {{[string]: string}} State */
     constructor() {
@@ -62,7 +61,7 @@ const AjaxialHistory = new class {
         let path = d.source.ajxl.history || d.source.ajxl.path;
         if (path === null) { return }
         const action = d.source.ajxl["history-action"];
-        let state = this.getHistoryState();
+        let state = this.constructor.getHistoryState();
         state = this.storeState(state);
         if (action === "replace") {
             history.replaceState(state, "", path)
@@ -74,12 +73,12 @@ const AjaxialHistory = new class {
     handle_ajaxial_finish() {
         if (this.throttle_timeout !== undefined) { return }
         this.throttle_timeout = window.setTimeout(() => {
-            history.replaceState(this.getHistoryState(), "", "")
+            history.replaceState(this.constructor.getHistoryState(), "", "")
             this.throttle_timeout = undefined;
         }, 100);
     }
     /** @returns {State} */
-    getHistoryState() {
+    static getHistoryState() {
         let elems = document.querySelectorAll("[ajxl-history-name]");
         let state = {};
         if (elems.length === 0) {
@@ -100,3 +99,37 @@ const AjaxialHistory = new class {
         return state;
     }
 }
+
+
+// (async function() {
+//     console.log("stream")
+//     let str = "hello world"
+//     for (let i = 0; i < 100_000; i++) {
+//         str += " some_mor" + i;
+//     }
+//     console.time();
+//     const stream = new Blob([ str ], {type: 'text/plain'}).stream();
+//     const c = new CompressionStream("gzip");
+//     const compressed = stream.pipeThrough(c);
+//     let total = 0
+//     let total_str = "";
+//     let total_arr = []
+//     for await (const res of compressed) {
+//         total += res.length
+//         // total_str += res.toString();
+//         // const arr = Array.from(res);
+//         // total_arr.push(...res);
+//         Array.prototype.push.apply(total_arr, res);
+//         // total_arr = total_arr.concat(...res);
+//         // total_arr = total_arr.concat(Array.from(res));
+//     }
+//     console.timeEnd();
+//     console.log("string len", str.length)
+//     console.log("compressed len", total)
+//     console.log("total string len", total_str.length)
+//     console.log("total arr len", total_arr.length)
+//     console.log("total arr (string) len", JSON.stringify(total_arr).length)
+//     console.log("uint8array len", new Uint8Array(total_arr).length)
+//     console.log(total_arr)
+// }())
+
