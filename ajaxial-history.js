@@ -103,7 +103,10 @@ const AjaxialHistory = new class {
     }
 }
 
+// TODO: would there be a benefit of storing Uint8Array instead of Array?
 // Example of how to change readState and storeState funcionality.
+
+// compression_threshold value 0 means compression is disabled
 AjaxialHistory.extra.compression_threshold = 0;
 function hasCompressionSupport() {
     return window.DecompressionStream && window.DecompressionStream;
@@ -111,14 +114,16 @@ function hasCompressionSupport() {
 AjaxialHistory.readState = async function(state) {
     if (this.extra.compression_threshold > 0 && hasCompressionSupport()) {
         for (const key in state) {
-            const compressed = new Uint8Array(state[key]);
-            const blob_stream = new Blob([ compressed ]).stream();
-            const stream = blob_stream.pipeThrough(new DecompressionStream("gzip"));
-            const bytes = []
-            for await (const chunk of stream) {
-                Array.prototype.push.apply(bytes, chunk);
+            const content = state[key];
+            if (Array.isArray(content)) { 
+                const blob_stream = new Blob([ new Uint8Array(content) ]).stream();
+                const stream = blob_stream.pipeThrough(new DecompressionStream("gzip"));
+                const bytes = []
+                for await (const chunk of stream) {
+                    Array.prototype.push.apply(bytes, chunk);
+                }
+                state[key] = new TextDecoder().decode(new Uint8Array(bytes));
             }
-            state[key] = new TextDecoder().decode(new Uint8Array(bytes));
         }
     }
 
@@ -128,13 +133,16 @@ AjaxialHistory.readState = async function(state) {
 AjaxialHistory.storeState = async function(state) {
     if (this.extra.compression_threshold > 0 && hasCompressionSupport()) {
         for (const key in state) {
-            const blob_stream = new Blob([ state[key] ], {type: 'text/plain'}).stream();
-            const stream = blob_stream.pipeThrough(new CompressionStream("gzip"));
-            const bytes = [];
-            for await (const chunk of stream) {
-                Array.prototype.push.apply(bytes, chunk);
+            const content = state[key];
+            if (content.length > this.extra.compression_threshold) {
+                const blob_stream = new Blob([ content ], {type: 'text/plain'}).stream();
+                const stream = blob_stream.pipeThrough(new CompressionStream("gzip"));
+                const bytes = [];
+                for await (const chunk of stream) {
+                    Array.prototype.push.apply(bytes, chunk);
+                }
+                state[key] = bytes;
             }
-            state[key] = bytes;
         }
     }
 
