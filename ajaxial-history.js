@@ -1,4 +1,6 @@
 const AjaxialHistory = new class {
+    // Might want to have some extra values when overwriting readState or storeState.
+    extra = {}
     /** @typedef {{[string]: string}} State */
     constructor() {
         /** @type {number | undefined} */
@@ -26,12 +28,12 @@ const AjaxialHistory = new class {
         @param {State} state 
         @returns {any}
     */
-    storeState(state) { return state; }
+    async storeState(state) { return state; }
     /** 
         @param {any} state 
         @returns {State}
     */
-    readState(state) { return state }
+    async readState(state) { return state }
     /** @param {PopStateEvent} ev */
     async handle_popstate(ev) {
         if (!ev.state) {
@@ -56,13 +58,13 @@ const AjaxialHistory = new class {
         }
     }
     /** @param {Event} ev */
-    handle_ajaxial_trigger(ev) {
+    async handle_ajaxial_trigger(ev) {
         const d = ev.detail;
         let path = d.source.ajxl.history || d.source.ajxl.path;
         if (path === null) { return }
         const action = d.source.ajxl["history-action"];
         let state = this.constructor.getHistoryState();
-        state = this.storeState(state);
+        state = await this.storeState(state);
         if (action === "replace") {
             history.replaceState(state, "", path)
         } else { // push
@@ -72,8 +74,9 @@ const AjaxialHistory = new class {
     }
     handle_ajaxial_finish() {
         if (this.throttle_timeout !== undefined) { return }
-        this.throttle_timeout = window.setTimeout(() => {
-            history.replaceState(this.constructor.getHistoryState(), "", "")
+        this.throttle_timeout = window.setTimeout(async () => {
+            const state = this.constructor.getHistoryState();
+            history.replaceState(await this.storeState(state), "", "")
             this.throttle_timeout = undefined;
         }, 100);
     }
@@ -100,36 +103,41 @@ const AjaxialHistory = new class {
     }
 }
 
+// Example of how to change readState and storeState funcionality.
+AjaxialHistory.extra.compression_threshold = 0;
+function hasCompressionSupport() {
+    return window.DecompressionStream && window.DecompressionStream;
+}
+AjaxialHistory.readState = async function(state) {
+    if (this.extra.compression_threshold > 0 && hasCompressionSupport()) {
+        for (const key in state) {
+            const compressed = new Uint8Array(state[key]);
+            const blob_stream = new Blob([ compressed ]).stream();
+            const stream = blob_stream.pipeThrough(new DecompressionStream("gzip"));
+            const bytes = []
+            for await (const chunk of stream) {
+                Array.prototype.push.apply(bytes, chunk);
+            }
+            state[key] = new TextDecoder().decode(new Uint8Array(bytes));
+        }
+    }
 
-// (async function() {
-//     console.log("stream")
-//     let str = "hello world"
-//     for (let i = 0; i < 100_000; i++) {
-//         str += " some_mor" + i;
-//     }
-//     console.time();
-//     const stream = new Blob([ str ], {type: 'text/plain'}).stream();
-//     const c = new CompressionStream("gzip");
-//     const compressed = stream.pipeThrough(c);
-//     let total = 0
-//     let total_str = "";
-//     let total_arr = []
-//     for await (const res of compressed) {
-//         total += res.length
-//         // total_str += res.toString();
-//         // const arr = Array.from(res);
-//         // total_arr.push(...res);
-//         Array.prototype.push.apply(total_arr, res);
-//         // total_arr = total_arr.concat(...res);
-//         // total_arr = total_arr.concat(Array.from(res));
-//     }
-//     console.timeEnd();
-//     console.log("string len", str.length)
-//     console.log("compressed len", total)
-//     console.log("total string len", total_str.length)
-//     console.log("total arr len", total_arr.length)
-//     console.log("total arr (string) len", JSON.stringify(total_arr).length)
-//     console.log("uint8array len", new Uint8Array(total_arr).length)
-//     console.log(total_arr)
-// }())
+    return state;
+} 
+
+AjaxialHistory.storeState = async function(state) {
+    if (this.extra.compression_threshold > 0 && hasCompressionSupport()) {
+        for (const key in state) {
+            const blob_stream = new Blob([ state[key] ], {type: 'text/plain'}).stream();
+            const stream = blob_stream.pipeThrough(new CompressionStream("gzip"));
+            const bytes = [];
+            for await (const chunk of stream) {
+                Array.prototype.push.apply(bytes, chunk);
+            }
+            state[key] = bytes;
+        }
+    }
+
+    return state;
+} 
 

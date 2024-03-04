@@ -23,6 +23,14 @@ about it. ajaxial:load event is only fired when process() is called, I do.
 But ajaxial:finish is fired before ajaxial:load and ajaxial:finish event
 is called in another function. Should be able to use ajaxial:finish.
 
+## Expanding pushState/replaceState state data size
+Could compress inner html if it is too big. This would allow to store more
+into history state. This can be done with CompressionStream and 
+DecompressionStream. This requires using async functions. Problem might
+be when pushState/replaceState is called in 'ajaxial:trigger'. Making
+'ajaxial:trigger' event handler async should not be a problem.
+Or use compression only when error is triggered when using pushState/replaceState?
+
 # Modify response based on status code. This should be its own extension
 
 Have Ajaxial.responseStrategies object that would contain functions that would 
