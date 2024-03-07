@@ -1,7 +1,7 @@
-# ajaxial-history extension
+# ajaxial-history
 
 Extension for [ajaxial](https://ajaxial.unmodernweb.com/). This extension
-adds handling of browser history to ajaxial. 
+adds handling of browser history. 
 
 ## Attributes
 - ajxl-history="<path>"
@@ -17,31 +17,33 @@ found body element's innerHTML will be stored.
 
 ## Use custom storage
 Can use your own custom storage solution by overwriting functions: 
-* AjaxialHistory.storeState(data)
-  **Input**
-  data - an object with keys being ajxl-history-name value and key's value 
-  would be element's inner html.
-  Example:
-  ```html
-  <div ... ajxl-history-name="main">Main content</div>
-  ```
-  ```js
-  { "main": "Main content" }
-  ```
+### AjaxialHistory.storeState()
+#### Parameters
+data - an object with keys being ajxl-history-name value and key's value 
+would be element's inner html.
 
-  **Output**
-  Output will be used by History.pushState or History.repeatState functions.
-  Output can be anything. This output value will returned to you when using 
-  AjaxialHistory.readState function.
+Example:
+```html
+<div ... ajxl-history-name="main">Main content</div>
+```
+```js
+{ "main": "Main content" }
+```
 
-* AjaxialHistory.readState(state)
-  **Input**
-  state - value will be whatever 'storeState' returned.
-  **Output**
-  Will have to be in the shape of 
-  ```js
-  { "<ajxl-history-name>": "element's inner html" }
-  ```
+#### Return value
+Output will be used by History.pushState or History.repeatState functions.
+Output can be anything. This output value will returned to you when using 
+AjaxialHistory.readState function.
+
+### AjaxialHistory.readState()
+#### Parameters
+data - value will be whatever 'storeState' returned.
+
+#### Return value
+Will be in the shape of 
+```js
+{ "<ajxl-history-name>": "element's inner html" }
+```
 
 ## To be wary of
 - Currently if there are several elements with same <name> last element's
