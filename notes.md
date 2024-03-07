@@ -31,6 +31,12 @@ be when pushState/replaceState is called in 'ajaxial:trigger'. Making
 'ajaxial:trigger' event handler async should not be a problem.
 Or use compression only when error is triggered when using pushState/replaceState?
 
+## When history storage fails (usually saved state too large)
+- Compress data and try again
+- Tell browser to refresh when going back in history? Set some value in storage
+state.
+
+
 # Modify response based on status code. This should be its own extension
 
 Have Ajaxial.responseStrategies object that would contain functions that would 
