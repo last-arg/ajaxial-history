@@ -16,11 +16,12 @@ If <name> is empty "default" name will be used. If no ajxl-history-name is
 found body element's innerHTML will be stored.
 
 ## Use custom storage
-Can use your own custom storage solution by overwriting functions: 
+Can use your own custom storage solution by overwriting functions AjaxialHistory.storeState 
+and/or AjaxialHistory.readState.
 ### AjaxialHistory.storeState()
 #### Parameters
-data - an object with keys being ajxl-history-name value and key's value 
-would be element's inner html.
+data - an object with key being ajxl-history-name and value being element's 
+inner html.
 
 Example:
 ```html
